@@ -25,16 +25,28 @@ jobs:
           pip install --upgrade pip
           pip install buildozer kivy Cython
 
-      - name: Accept All Licenses via Pre-installed SDK
+      - name: Pre-accept SDK Licenses
         run: |
+          # 1. قبول تراخيص النظام الأساسي
           mkdir -p ~/.android
           touch ~/.android/repositories.cfg
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
+          # 2. إنشاء وتجهيز مسار التراخيص لـ Buildozer
+          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+          
+          # نسخ جميع ملفات التراخيص المقبولة من نظام GitHub إلى مجلد Buildozer
+          if [ -d "$ANDROID_HOME/licenses" ]; then
+            cp -r $ANDROID_HOME/licenses/* ~/.buildozer/android/platform/android-sdk/licenses/ || true
+          fi
+
+          # كتابة مفاتيح التراخيص المعيارية مباشرة
+          LIC_FILE="~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license"
+          eval LIC_FILE_EXP=$LIC_FILE
+          printf "24833b29137e6f86114e4000186d2861355201b7\n504667f4c05912d7331036a9f65fb8636914d4d6\n84831b9402111701a56d4130d972d2424fae0a29\nd56f5187479451eabf01fb78af6dfcb131a6481e\n24333f8a63b6825ea9d5514f83c2829b004d1fee\n" > "$LIC_FILE_EXP"
+
       - name: Build APK with Buildozer
         run: |
-          # تشغيل buildozer باستخدام SDK البيئة المجهزة
-          export ANDROIDSDK=$ANDROID_HOME
           buildozer android debug
 
       - name: Upload APK Artifact
