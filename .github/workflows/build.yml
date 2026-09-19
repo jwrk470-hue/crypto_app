@@ -27,14 +27,11 @@ jobs:
 
       - name: Pre-accept All Android SDK Licenses
         run: |
-          # إنشاء وتعبئة ملفات التراخيص المقبولة في المسارات العامة وخاصة مجلد buildozer
           mkdir -p ~/.android/sdk/licenses
           mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
           
-          # قبول التراخيص التفاعلية باستخدام sdkmanager المرفق
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-          # كwrite جميع التراخيص رسمياً داخل مسار buildozer المستهدف
           LICENSE_HASHES="24833b29137e6f86114e4000186d2861355201b7\n504667f4c05912d7331036a9f65fb8636914d4d6\n84831b9402111701a56d4130d972d2424fae0a29\nd56f5187479451eabf01fb78af6dfcb131a6481e\n24333f8a63b6825ea9d5514f83c2829b004d1fee"
           
           printf "$LICENSE_HASHES" > ~/.android/sdk/licenses/android-sdk-license
@@ -42,7 +39,8 @@ jobs:
 
       - name: Build APK with Buildozer
         run: |
-          buildozer android debug
+          # القبول التلقائي أثناء عملية بناء python-for-android
+          yes | buildozer android debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
